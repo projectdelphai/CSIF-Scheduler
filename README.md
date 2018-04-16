@@ -2,8 +2,12 @@ CSIF Scheduler
 =======================
 
 
-convert.py:
+convert_csv.py:
 
-to run: 
+to convert excel availabilities to csvs:
 
-  python name_of_excel_sheet
+  python convert_csv.py name_of_excel_sheet
+
+to get availabilities per day:
+
+  python scheduler.py
