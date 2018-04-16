@@ -3,6 +3,7 @@
 import os
 import csv
 import numpy as np
+import pandas as pd
 
 class Employee:
     def __init__(self, username, requested_hours, availability):
@@ -10,11 +11,11 @@ class Employee:
         self.requested_hours = requested_hours
         self.availability = availability
     def __str__(self):
-        return("username: " + self.username + "\nrequested hours: " + self.requested_hours)
+        return("username: " + self.username + "\nrequested hours: " + str(self.requested_hours))
 
 def find_csv_files(directory):
     filenames = os.listdir(directory)
-    return [filename for filename in filenames if filename.endswith('.csv')]
+    return ['./data/csv/' + filename for filename in filenames if filename.endswith('.csv')]
 
 # import csv file
 def parse_csv(filename):
@@ -27,18 +28,21 @@ def parse_csv(filename):
 
 # store employee raw data in a employee class
 def create_employee(filename, raw_data):
-    username = filename[:-4]
-    requested_hours = raw_data[1][10]
-    num_second_choices = raw_data[2][10]
-    num_third_choices = raw_data[3][10]
+    username = filename[11:-4]
+    requested_hours = float(raw_data[1][10])
+    num_second_choices = float(raw_data[2][10])
+    num_third_choices = float(raw_data[3][10])
 
-    if (num_second_choices < 20):
-        print(username + "does not have enough second choices")
-        return None
+    #if num_second_choices < 20.0:
+        #print(username + " does not have enough second choices")
+        #return None
 
-    if (num_third_choices < 10):
-        print(username + "does not have enough third choices")
-        return None
+    #if num_third_choices < 10.0:
+        #print(username + " does not have enough third choices")
+        #return None
+
+    if requested_hours > 19.5:
+        print(username + " has too many requested hours")
 
     availability = []
     for i in raw_data[1:]:
@@ -62,7 +66,7 @@ def get_availabilities_by_day(employees):
         availabilities.append(arr)
     return(availabilities)
 
-filenames = find_csv_files("./")
+filenames = find_csv_files("./data/csv")
 employees = []
 for filename in filenames:
     raw_data = parse_csv(filename)
@@ -70,6 +74,18 @@ for filename in filenames:
     if (employee is not None):
         employees.append(employee)
 
+raw_data = parse_csv(filename)
+times = []
+for i in raw_data[1:]:
+    times.append(i[0])
+
 # abd = availabilities by day
 abd = get_availabilities_by_day(employees)
-print(abd[6])
+employee_names = [employee.username for employee in employees]
+days = ['Monday', 'Tuesday', "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+for i in range(7):
+    day = abd[i]
+    df = pd.DataFrame(day, index=times, columns=employee_names)
+    df.to_csv('data/days/' + days[i] + '.csv', index=True, header=True, sep=',')
+
+
